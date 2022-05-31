@@ -21,8 +21,16 @@ import javax.swing.JPasswordField;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import com.formdev.flatlaf.FlatLightLaf;
+
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
 
 public class mainFrm extends JFrame {
 
@@ -153,6 +161,34 @@ public class mainFrm extends JFrame {
 		        BorderFactory.createEmptyBorder(1, 5, 5, 5)));
 		
 		JButton btnNewButton = new JButton("LOGIN");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String userName = "";
+		        String userPassword = "";
+		        try {
+		            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/masa_db","root","");
+		            Statement stmt = con.createStatement();
+		            Class.forName("com.mysql.cj.jdbc.Driver");
+		            ResultSet rs = stmt.executeQuery("SELECT userName, passcode, isAdmin FROM useraccounts WHERE isAdmin=1;");
+		            if(rs.next())
+		            {
+		               userName = rs.getString("userName");
+		               userPassword = rs.getString("passcode");
+		            }
+		            con.close();
+		        } catch (Exception ex) {
+		            ex.printStackTrace();
+		        }
+		        
+		        if(textField.getText().equals(userName) && passwordField.getText().equals(userPassword))
+		        {
+		            JOptionPane.showMessageDialog(null, "LOGIN SUCESS", "Point of Sale", JOptionPane.INFORMATION_MESSAGE);
+		        }else
+		        {
+		            JOptionPane.showMessageDialog(null, "LOGIN FAILED! Please check username and password.", "Point of Sale", JOptionPane.ERROR_MESSAGE);
+		        }
+			}
+		});
 		btnNewButton.setBackground(SystemColor.controlHighlight);
 		btnNewButton.setFont(new Font("Constantia", Font.PLAIN, 15));
 		btnNewButton.setBounds(24, 342, 94, 32);
